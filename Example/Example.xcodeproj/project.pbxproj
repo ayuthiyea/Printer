@@ -98,7 +98,6 @@
 				5FE2DF173FC52C0A40D01949 /* Pods-Example.debug.xcconfig */,
 				6645EC7B07DA71DAB12A02CF /* Pods-Example.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -137,7 +136,7 @@
 				TargetAttributes = {
 					0A77131E1DF9140C0009867F = {
 						CreatedOnToolsVersion = 8.1;
-						DevelopmentTeam = X7S38PP265;
+						DevelopmentTeam = CZKMD5D2VK;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
@@ -368,11 +367,11 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = X7S38PP265;
+				DEVELOPMENT_TEAM = CZKMD5D2VK;
 				INFOPLIST_FILE = Example/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.KevinGong.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.KevinGong.Example-re";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -384,11 +383,11 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = X7S38PP265;
+				DEVELOPMENT_TEAM = CZKMD5D2VK;
 				INFOPLIST_FILE = Example/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.KevinGong.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.KevinGong.Example-re";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};

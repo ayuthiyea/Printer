@@ -1,10 +1,10 @@
-//
-//  Image.swift
-//  Ticket
-//
-//  Created by gix on 2019/6/30.
-//  Copyright © 2019 gix. All rights reserved.
-//
+/*=================
+    Image.swift
+    Ticket
+
+    Created by gix on 2019/6/30.
+    Copyright © 2019 gix. All rights reserved.
+=================*/
 
 import Foundation
 
@@ -13,9 +13,7 @@ public protocol Image {
 }
 
 extension Image {
-    
     var ticketData: Data? {
-        
         let width = ticketImage.width
         let height = ticketImage.height
         
@@ -23,15 +21,18 @@ extension Image {
             // get binary data
             if let binaryImageData = format_K_threshold(orgpixels: grayData, xsize: width, ysize: height) {
                 // each line prepare for printer
-                let data = eachLinePixToCmd(src: binaryImageData, nWidth: width, nHeight: height, nMode: 0)
-                return Data(bytes: data, count: height * (8 + width / 8))
+                let data = eachLinePixToGSV0Cmd(src: binaryImageData, nWidth: width, nHeight: height, nMode: 0)
+                return Data(bytes: data, count: data.count)
             }
         }
+        
         return nil
     }
     
+    /*================
+        Convert image to gray
+     ===============*/
     private func convertImageToGray(_ inputCGImage: CGImage) -> [UInt8]? {
-        
         let kRed: Int = 1
         let kGreen: Int = 2
         let kBlue: Int = 4
@@ -84,15 +85,15 @@ extension Image {
                     count += 1
                 }
                 m_imageData.append(UInt8(sum / count))
-                //pixelBuffer[offset].color = sum
             }
         }
         
-        //let outputCGImage = context.makeImage()!
-        //let outputImage = UIImage(cgImage: outputCGImage, scale: (i?.scale)!, orientation: (i?.imageOrientation)!)
         return m_imageData
     }
     
+    /*================
+        Format K threshold
+     ===============*/
     private func format_K_threshold(orgpixels: [UInt8], xsize: Int, ysize: Int) -> [UInt8]? {
         var despixels = [UInt8]()
         var graytotal: Int = 0
@@ -124,7 +125,10 @@ extension Image {
         return despixels
     }
     
-    private func eachLinePixToCmd(src: [UInt8], nWidth: Int, nHeight: Int, nMode: Int) -> [UInt8] {
+    /*===============
+        Convert raster image GS V 0 command
+     ==============*/
+    private func eachLinePixToGSV0Cmd(src: [UInt8], nWidth: Int, nHeight: Int, nMode: Int) -> [UInt8] {
         var data = [[UInt8]]()
         
         let p0 = [0, 0x80]
@@ -136,22 +140,250 @@ extension Image {
         let p6 = [0, 0x02]
         
         let nBytesPerLine: Int = (nWidth + 7) / 8
-        var k: Int = 0
+        let dotsPerHeight: Int = (nHeight + 23) / 24
         
-        for _ in 0..<nHeight {
-            data.append(ESC_POSCommand.beginPrintImage(xl: UInt8(nBytesPerLine % 0xff), xH: UInt8(nBytesPerLine / 0xff), yl: UInt8(1), yH: UInt8(0)).rawValue)
+        for i in 0..<dotsPerHeight {
+            var header: [UInt8] = ESC_POSCommand.beginPrintImage(xl: UInt8(nBytesPerLine % 0xff), xH: UInt8(nBytesPerLine / 0xff), yl: UInt8(24), yH: UInt8(0)).rawValue
+            var bytesPerLine: [UInt8] = [UInt8]()
             
-            var bytes = [UInt8]()
-            for _ in 0..<nBytesPerLine {
-                bytes.append(UInt8(p0[Int(src[k])] + p1[Int(src[k + 1])] + p2[Int(src[k + 2])] + p3[Int(src[k + 3])] + p4[Int(src[k + 4])] + p5[Int(src[k + 5])] + p6[Int(src[k + 6])] + Int(src[k + 7])))
-                k = k + 8
+            //  Case: bottom of image
+            if i == dotsPerHeight - 1 {
+                //  Case: complete with 24 dots
+                if nHeight % 24 == 0 {
+                    var byte: UInt8 = 0
+                    var k = 0
+                    
+                    for j in 0..<nBytesPerLine * 24 * 8 {
+                        print(i * nBytesPerLine * 24 * 8 + j)
+                        switch k {
+                        case 0:
+                            byte += UInt8(p0[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 1:
+                            byte += UInt8(p1[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 2:
+                            byte += UInt8(p2[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 3:
+                            byte += UInt8(p3[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 4:
+                            byte += UInt8(p4[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 5:
+                            byte += UInt8(p5[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 6:
+                            byte += UInt8(p6[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        default:
+                            byte += UInt8(src[i * nBytesPerLine * 24 * 8 + j])
+                        }
+                        
+                        if (k == 7) {
+                            bytesPerLine.append(byte)
+                            
+                            k = 0
+                            byte = 0
+                        }
+                        else {
+                            k += 1
+                        }
+                    }
+                }
+                //  Case: complete with less than 24 dots
+                else {
+                    header[6] = UInt8(nHeight % 24)
+                    
+                    var byte: UInt8 = 0
+                    var k = 0
+                    
+                    for j in 0..<nBytesPerLine * (nHeight % 24) * 8 {
+                        print(i * nBytesPerLine * 24 * 8 + j)
+                        switch k {
+                        case 0:
+                            byte += UInt8(p0[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 1:
+                            byte += UInt8(p1[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 2:
+                            byte += UInt8(p2[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 3:
+                            byte += UInt8(p3[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 4:
+                            byte += UInt8(p4[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 5:
+                            byte += UInt8(p5[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        case 6:
+                            byte += UInt8(p6[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                        default:
+                            byte += UInt8(src[i * nBytesPerLine * 24 * 8 + j])
+                        }
+                        
+                        if (k == 7) {
+                            bytesPerLine.append(byte)
+                            
+                            k = 0
+                            byte = 0
+                        }
+                        else {
+                            k += 1
+                        }
+                    }
+                }
             }
-            data.append(bytes)
+            //  Case: other
+            else {
+                var byte: UInt8 = 0
+                var k = 0
+                
+                for j in 0..<nBytesPerLine * 24 * 8 {
+                    print(i * nBytesPerLine * 24 * 8 + j)
+                    print(src[i * nBytesPerLine * 24 * 8 + j])
+                    
+                    switch k {
+                    case 0:
+                        byte += UInt8(p0[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                    case 1:
+                        byte += UInt8(p1[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                    case 2:
+                        byte += UInt8(p2[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                    case 3:
+                        byte += UInt8(p3[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                    case 4:
+                        byte += UInt8(p4[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                    case 5:
+                        byte += UInt8(p5[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                    case 6:
+                        byte += UInt8(p6[Int(src[i * nBytesPerLine * 24 * 8 + j])])
+                    default:
+                        byte += UInt8(src[i * nBytesPerLine * 24 * 8 + j])
+                    }
+                    
+                    if (k == 7) {
+                        bytesPerLine.append(byte)
+                        
+                        k = 0
+                        byte = 0
+                    }
+                    else {
+                        k += 1
+                    }
+                }
+            }
+            
+            data.append(header)
+            data.append(bytesPerLine)
         }
+        
         let rdata: [UInt8] = data.flatMap { $0 }
         return rdata
     }
     
+    /*===============
+        Convert raster image GS (L command
+     ==============*/
+    private func pixToGSLCmd(src: [UInt8], nWidth: Int, nHeight: Int, nMode: Int) -> [UInt8] {
+        var data = [UInt8]()
+        var header = [UInt8]()
+        var header2 = [UInt8]()
+    
+        let p0 = [0, 0x80]
+        let p1 = [0, 0x40]
+        let p2 = [0, 0x20]
+        let p3 = [0, 0x10]
+        let p4 = [0, 0x08]
+        let p5 = [0, 0x04]
+        let p6 = [0, 0x02]
+        
+        //  Build header
+        let paramSize: Int = (src.count / 8) + 10
+        let pL: UInt8 = UInt8(paramSize & 0xff)
+        let pH: UInt8 = UInt8((paramSize & 0xff00) >> 8)
+        header.append(29)
+        header.append(40)
+        header.append(76)
+        header.append(pL)
+        header.append(pH)
+        header.append(48)
+        header.append(112)
+        header.append(48)
+        header.append(1)
+        header.append(1)
+        header.append(49)
+        
+        let horizontalBits: Int = nWidth;
+        let xL: UInt8 = UInt8(horizontalBits & 0xff);
+        let xH: UInt8 = UInt8((horizontalBits & 0xff00) >> 8)
+        
+        let verticalBits: Int = nHeight
+        let yL: UInt8 = UInt8(verticalBits & 0xff)
+        let yH: UInt8 = UInt8((verticalBits & 0xff00) >> 8)
+        
+        header.append(xL)
+        header.append(xH)
+        header.append(yL)
+        header.append(yH)
+        
+        var k: Int = 0
+        var byte: UInt8 = 0
+        for bit in src {
+            switch k {
+            case 0:
+                byte += UInt8(p0[Int(bit)])
+            case 1:
+                byte += UInt8(p1[Int(bit)])
+            case 2:
+                byte += UInt8(p2[Int(bit)])
+            case 3:
+                byte += UInt8(p3[Int(bit)])
+            case 4:
+                byte += UInt8(p4[Int(bit)])
+            case 5:
+                byte += UInt8(p5[Int(bit)])
+            case 6:
+                byte += UInt8(p6[Int(bit)])
+            default:
+                byte += UInt8(bit)
+            }
+            
+            if (k == 7) {
+                data.append(byte)
+                
+                k = 0
+                byte = 0
+            }
+            else {
+                k += 1
+            }
+        }
+        
+        header2.append(29)
+        header2.append(40)
+        header2.append(76)
+        header2.append(2)
+        header2.append(0)
+        header2.append(48)
+        header2.append(50)
+        
+        var d: [UInt8] = [UInt8]()
+        d.append(contentsOf: header)
+        d.append(contentsOf: data)
+        d.append(contentsOf: header2)
+        
+        return d
+    }
+    
+    /*===============
+        Convert raster image ESC * command
+     ==============*/
+    private func eachLinePixToESStarCmd(src: [UInt8], nWidth: Int, nHeight: Int, nMode: Int) -> [UInt8] {
+        var data: [UInt8] = [27, 42, 0, UInt8(nWidth), UInt8(nWidth >> 8)]
+        let dotHeight: Int = Int((nHeight + 23) / 24)
+        
+        for i in 0..<dotHeight {
+            var rowData: [[UInt8]] = [[UInt8]](repeating: [UInt8](), count: nWidth)
+            
+            for j in 0..<nWidth {
+                rowData[j].append((i * nWidth + j) < src.count ? src[i * nWidth + j] : 0)
+            }
+        }
+        
+        return data
+    }
 }
 
 private struct RGBA32: Equatable {
@@ -198,7 +430,6 @@ private struct RGBA32: Equatable {
     }
 }
 
-//
 extension UIImage: Image {
     public var ticketImage: CGImage {
         guard let image = cgImage else {
@@ -208,8 +439,6 @@ extension UIImage: Image {
     }
 }
 
-/// convert UIView to image
-/// can use webview print html.
 extension UIView: Image {
     public var ticketImage: CGImage {
         if #available(iOS 10.0, *) {
@@ -230,4 +459,3 @@ extension UIView: Image {
         }
     }
 }
-

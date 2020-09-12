@@ -9,7 +9,6 @@
 import Foundation
 
 extension Data {
-    
     init(esc_pos cmd: ESC_POSCommand...) {
         self.init(cmd.reduce([], { (r, cmd) -> [UInt8] in
             return r + cmd.rawValue
@@ -26,7 +25,6 @@ extension Data {
 }
 
 public struct ESC_POSCommand: RawRepresentable {
-    
     public typealias RawValue = [UInt8]
     
     public let rawValue: [UInt8]
@@ -44,7 +42,6 @@ public struct ESC_POSCommand: RawRepresentable {
 
 //Control Commands
 extension ESC_POSCommand {
-    
     // Clears the data in the print buffer and resets the printer modes to the modes that were in effect when the power was turned on.
     static let initialize = ESC_POSCommand(rawValue: [27, 64])
     

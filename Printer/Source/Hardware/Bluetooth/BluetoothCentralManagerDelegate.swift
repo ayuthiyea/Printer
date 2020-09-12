@@ -81,7 +81,6 @@ class BluetoothCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
     }
 
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-
         guard let serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID],
             let isConnectable = advertisementData[CBAdvertisementDataIsConnectable] as? NSNumber,
             serviceUUIDs.count > 0, isConnectable == 1 else {
@@ -92,7 +91,6 @@ class BluetoothCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
         let peripheralServiceSet = Set(serviceUUIDs.map { $0.uuidString } )
 
         guard peripheralServiceSet.intersection(services).count > 0 else {
-
             return
         }
 

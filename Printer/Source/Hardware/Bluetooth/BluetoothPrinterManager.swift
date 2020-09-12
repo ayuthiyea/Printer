@@ -16,7 +16,6 @@ public extension String {
 }
 
 private extension CBPeripheral {
-
     var printerState: BluetoothPrinter.State {
         switch state {
         case .disconnected:
@@ -34,9 +33,7 @@ private extension CBPeripheral {
 }
 
 public struct BluetoothPrinter {
-
     public enum State {
-
         case disconnected
         case connecting
         case connected
@@ -61,20 +58,18 @@ public struct BluetoothPrinter {
 }
 
 public enum NearbyPrinterChange {
-
     case add(BluetoothPrinter)
     case update(BluetoothPrinter)
     case remove(UUID) // identifier
 }
 
 public protocol PrinterManagerDelegate: NSObjectProtocol {
-
     func nearbyPrinterDidChange(_ change: NearbyPrinterChange)
 }
 
 public extension BluetoothPrinterManager {
 
-    static var specifiedServices: Set<String> = ["E7810A71-73AE-499D-8C15-FAA9AEF0C3F2"]
+    static var specifiedServices: Set<String> = ["E7810A71-73AE-499D-8C15-FAA9AEF0C3F2", "18F0"]
     static var specifiedCharacteristics: Set<String>?
 }
 
@@ -188,7 +183,6 @@ public class BluetoothPrinterManager {
     }
 
     public func startScan() -> PError? {
-
         guard !centralManager.isScanning else {
             return nil
         }
@@ -198,18 +192,17 @@ public class BluetoothPrinterManager {
         }
 
         let serviceUUIDs = BluetoothPrinterManager.specifiedServices.map { CBUUID(string: $0) }
+        
         centralManager.scanForPeripherals(withServices: serviceUUIDs, options: nil)
 
         return nil
     }
 
     public func stopScan() {
-
         centralManager.stopScan()
     }
 
     public func connect(_ printer: BluetoothPrinter) {
-
         guard let per = centralManagerDelegate[printer.identifier] else {
 
             return
@@ -229,7 +222,6 @@ public class BluetoothPrinterManager {
     }
 
     @objc private func connectTimeout(_ timer: Timer) {
-
         guard let uuid = (timer.userInfo as? UUID), let p = centralManagerDelegate[uuid] else {
             return
         }
@@ -245,7 +237,6 @@ public class BluetoothPrinterManager {
     }
 
     public func disconnect(_ printer: BluetoothPrinter) {
-
         guard let per = centralManagerDelegate[printer.identifier] else {
             return
         }
@@ -258,7 +249,6 @@ public class BluetoothPrinterManager {
     }
 
     public func disconnectAllPrinter() {
-
         let serviceUUIDs = BluetoothPrinterManager.specifiedServices.map { CBUUID(string: $0) }
         
         centralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs).forEach {

@@ -9,7 +9,6 @@
 import Foundation
 
 struct QRCode: BlockDataProvider {
-    
     let content: String
     
     init(_ content: String) {

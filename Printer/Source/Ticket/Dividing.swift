@@ -20,7 +20,6 @@ extension Character: DividingPrivoider {
 
 /// add Dividing on receipt
 public struct Dividing: BlockDataProvider {
-    
     let provider: DividingPrivoider
     
     let printDensity: Int

@@ -8,7 +8,6 @@
 import Foundation
 
 public struct TicketImage: BlockDataProvider {
-    
     private let image: Image
     private let attributes: [Attribute]?
     
@@ -33,9 +32,7 @@ public struct TicketImage: BlockDataProvider {
 }
 
 public extension TicketImage {
-    
     enum PredefinedAttribute: Attribute {
-        
         case alignment(NSTextAlignment)
         
         public var attribute: [UInt8] {
@@ -45,5 +42,4 @@ public extension TicketImage {
             }
         }
     }
-    
 }

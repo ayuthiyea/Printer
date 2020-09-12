@@ -9,7 +9,6 @@
 import Foundation
 
 public struct Text: BlockDataProvider {
-    
     let content: String
     let attributes: [Attribute]?
     
@@ -34,11 +33,8 @@ public struct Text: BlockDataProvider {
 }
 
 public extension Text {
-    
     enum PredefinedAttribute: Attribute {
-        
         public enum ScaleLevel: UInt8 {
-            
             case l0 = 0x00
             case l1 = 0x11
             case l2 = 0x22
@@ -76,14 +72,12 @@ public extension Text {
 }
 
 public extension Text {
-    
     init(content: String, predefined attributes: PredefinedAttribute...) {
         self.init(content, attributes: attributes)
     }
 }
 
 public extension Text {
-    
     static func title(_ content: String) -> Text {
         return Text(content: content, predefined: .scale(.l1), .alignment(.center))
     }
@@ -110,4 +104,3 @@ public extension Text {
         return Text(contents.joined(), attributes: attributes)
     }
 }
-

@@ -9,11 +9,8 @@
 import UIKit
 
 public class BluetoothPrinterSelectTableViewController: UITableViewController {
-
     public weak var printerManager: BluetoothPrinterManager?
-
     public var sectionTitle: String? // convenience property
-    
     var dataSource = [BluetoothPrinter]()
 
     override public func viewDidLoad() {
@@ -83,13 +80,13 @@ public class BluetoothPrinterSelectTableViewController: UITableViewController {
 }
 
 extension BluetoothPrinterSelectTableViewController: PrinterManagerDelegate {
-
     public func nearbyPrinterDidChange(_ change: NearbyPrinterChange) {
-
         tableView.beginUpdates()
 
         switch change {
         case let .add(p):
+            print("=========== I am changing")
+            
             let indexPath = IndexPath(row: dataSource.count, section: 0)
             dataSource.append(p)
             tableView.insertRows(at: [indexPath], with: .automatic)

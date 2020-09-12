@@ -10,11 +10,11 @@ import Foundation
 import CoreBluetooth
 
 class BluetoothPeripheralDelegate: NSObject, CBPeripheralDelegate {
-
     private var services: Set<String>!
     private var characteristics: Set<CBUUID>?
 
     private let writablecharacteristicUUID = "BEF8D6C9-9C21-4C9E-B632-BD58C1009F9F"
+    private let writableWithoutResponseCharacteristicUUID = "2AF1"
 
     var wellDoneCanWriteData: ((CBPeripheral) -> ())?
 
@@ -63,7 +63,22 @@ class BluetoothPeripheralDelegate: NSObject, CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
 
         writablePeripheral = peripheral
-        writablecharacteristic = service.characteristics?.filter { $0.uuid.uuidString == writablecharacteristicUUID }.first
+
+        if let characteristics = service.characteristics {
+            for characteristic in characteristics {
+                //  Case: write with response
+                if characteristic.uuid.uuidString == writablecharacteristicUUID {
+                    writablecharacteristic = characteristic
+                    break
+                }
+                
+                //  Case: write without response
+                if characteristic.uuid.uuidString == writableWithoutResponseCharacteristicUUID {
+                    writablecharacteristic = characteristic
+                    break
+                }
+            }
+        }
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {

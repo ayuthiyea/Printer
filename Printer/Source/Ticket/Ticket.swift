@@ -9,7 +9,6 @@
 import Foundation
 
 public struct Ticket {
-    
     public var feedLinesOnTail: UInt8 = 3
     public var feedLinesOnHead: UInt8 = 0
     
@@ -24,7 +23,6 @@ public struct Ticket {
     }
     
     public func data(using encoding: String.Encoding) -> [Data] {
-        
         var ds = blocks.map { Data.reset + $0.data(using: encoding) }
         
         if feedLinesOnHead > 0 {

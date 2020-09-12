@@ -19,7 +19,6 @@ public protocol Attribute {
 }
 
 public struct Block: Printable {
-
     public static var defaultFeedPoints: UInt8 = 70
     
     private let feedPoints: UInt8
@@ -74,5 +73,4 @@ public extension Block {
     static func image(_ im: Image, attributes: TicketImage.PredefinedAttribute...) -> Block {
         return Block(TicketImage(im, attributes: attributes))
     }
-    
 }

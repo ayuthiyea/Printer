@@ -9,7 +9,6 @@
 import Foundation
 
 public protocol ESCPOSCommandsCreator {
-    
     func data(using encoding: String.Encoding) -> [Data]
 }
 

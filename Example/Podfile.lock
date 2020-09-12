@@ -1,5 +1,5 @@
 PODS:
-  - Printer (4.0.0)
+  - Printer (4.0.1)
 
 DEPENDENCIES:
   - Printer (from `../`)
@@ -9,8 +9,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Printer: 5d6f807249ed7c1eef1325672029638bab1a5c9b
+  Printer: 9054c0de769f1e25eb06356c70769f9fcf074e33
 
 PODFILE CHECKSUM: e55ac4a3e76be7c398f8b94026730da897601a88
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.9.3

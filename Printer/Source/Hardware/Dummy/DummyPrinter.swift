@@ -9,7 +9,6 @@
 import Foundation
 
 public class DummyPrinter {
-    
     public init() {}
     
     public func print(_ value: ESCPOSCommandsCreator) {
