@@ -265,7 +265,6 @@ public class BluetoothPrinterManager {
     }
 
     public func print(_ content: ESCPOSCommandsCreator, encoding: String.Encoding = String.GBEncoding.GB_18030_2000, completeBlock: ((PError?) -> ())? = nil) {
-
         guard let p = peripheralDelegate.writablePeripheral, let c = peripheralDelegate.writablecharacteristic else {
 
             completeBlock?(.deviceNotReady)
@@ -277,6 +276,17 @@ public class BluetoothPrinterManager {
             p.writeValue(data, for: c, type: .withoutResponse)
         }
 
+        completeBlock?(nil)
+    }
+    
+    public func printRaw(_ content: [UInt8], encoding: String.Encoding = String.GBEncoding.GB_18030_2000, completeBlock: ((PError?) -> ())? = nil) {
+        guard let p = peripheralDelegate.writablePeripheral, let c = peripheralDelegate.writablecharacteristic else {
+
+            completeBlock?(.deviceNotReady)
+            return
+        }
+        
+        p.writeValue(Data(bytes: content, count: content.count), for: c, type: .withoutResponse)
         completeBlock?(nil)
     }
 

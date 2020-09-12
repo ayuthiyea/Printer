@@ -85,8 +85,6 @@ extension BluetoothPrinterSelectTableViewController: PrinterManagerDelegate {
 
         switch change {
         case let .add(p):
-            print("=========== I am changing")
-            
             let indexPath = IndexPath(row: dataSource.count, section: 0)
             dataSource.append(p)
             tableView.insertRows(at: [indexPath], with: .automatic)
